@@ -873,7 +873,7 @@ void fan_display() {
 
 float dong_ho_x = 0, dong_ho_y = 0;
 
-void dong_ho() 
+void dong_ho()
 {
 	mat4 model_dong_ho = Translate(1 + dong_ho_x, 1 + dong_ho_y, 0) * Scale(1, 1, 1);
 	setMau(0.3, 0.4, 0.5);
@@ -886,7 +886,7 @@ void dong_ho()
 	{
 		float angle = i * 30 * DegreesToRadians;
 		setMau(0.8, 0.4, 0.5);
-		instance = model_dong_ho * Translate(sin(angle) * scale, cos(angle) * scale, 0) * RotateZ(i * - 30);
+		instance = model_dong_ho * Translate(sin(angle) * scale, cos(angle) * scale, 0) * RotateZ(i * -30);
 		glUniformMatrix4fv(model_loc, 1, GL_TRUE, model_dong_ho * instance * Scale(0.01, 0.1, 0.2));
 		glDrawArrays(GL_TRIANGLES, 0, NumPoints);
 	}
@@ -944,6 +944,7 @@ void display(void)
 	glutSwapBuffers();
 
 }
+float cam_x = 0, cam_y = 0;
 void reshape(int width, int height)
 {
 	vec4 eye(0, 0, 2, 1);
@@ -959,10 +960,23 @@ void reshape(int width, int height)
 	glViewport(0, 0, width, height);
 }
 
+void update_camera()
+{
+	vec4 eye(0, 0 + cam_y, 2 + cam_x, 1);
+	vec4 at(0, 0, 0, 1);
+	vec4 up(0, 1, 0, 1);
+
+	view = LookAt(eye, at, up);
+	glUniformMatrix4fv(view_loc, 1, GL_TRUE, view);
+
+	projection = Frustum(-1, 1, -1, 1, 1, 4);
+	glUniformMatrix4fv(projection_loc, 1, GL_TRUE, projection);
+}
+
 void keyboard(unsigned char key, int x, int y)
 {
 	// keyboard handler
-
+	//cout << "key " << key << endl;
 	switch (key) {
 	case 033:			// 033 is Escape key octal value
 		exit(1);		// quit program
@@ -1121,9 +1135,29 @@ void keyboard(unsigned char key, int x, int y)
 		dong_ho_y -= 0.1;
 		glutPostRedisplay();
 		break;
+
+
+	case '/':
+		cam_x += 0.5;
+		glutPostRedisplay();
+		break;
+	case '*':
+		cam_x -= 0.5;
+		glutPostRedisplay();
+		break;
+	case '-':
+		cam_y += 0.5;
+		glutPostRedisplay();
+		break;
+	case '+':
+		cam_y -= 0.5;
+		glutPostRedisplay();
+		break;
 	default:
 		break;
 	}
+
+	update_camera();
 
 }
 int main(int argc, char** argv)
